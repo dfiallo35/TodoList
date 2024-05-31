@@ -11,7 +11,7 @@ function Home() {
     const getHome = () => {
         api
             .get('/api/')
-            .then((res) => { setHome(res.data.message); console.log(res.data) })
+            .then((res) => setHome(res.data.message))
             .catch((err) => alert(err));
     }
 
