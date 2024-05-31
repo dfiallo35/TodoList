@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
 
+
 function Home() {
     const [home, setHome] = useState('');
 
@@ -11,7 +12,7 @@ function Home() {
     const getHome = () => {
         api
             .get('/api/')
-            .then((res) => { setHome(res.data.message); console.log(res.data) })
+            .then((res) => setHome(res.data.message))
             .catch((err) => alert(err));
     }
 
