@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
 
+
 function Home() {
     const [home, setHome] = useState('');
 
