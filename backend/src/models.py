@@ -7,7 +7,6 @@ class ToDo(BaseModel):
     name: str
     description: Optional[str] = None
     checked: bool = False
-    id_category:int = 0
 
 
 class ToDoList(BaseModel):
@@ -16,18 +15,12 @@ class ToDoList(BaseModel):
     def append(self, elem: ToDo):
         self.todos.append(elem)
         
-    def search(self, id_: int):
+    def search(self, id_: int):   #delete after mocked
         for todo in self.todos:
             if todo.id_todo == id_:
                 return todo
-        # return filter(lambda todo: todo.id_todo == id, self.todos)
     
     def delete(self, todo: ToDo):
         self.todos.remove(todo)
 
-class A:
-    pan: int
-    def __init__(self, pan):
-        self.pan = pan
-        
  

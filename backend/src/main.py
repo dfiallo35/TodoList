@@ -1,7 +1,11 @@
 
 from typing import Union
-from fastapi import FastAPI
 from random import randrange
+
+from fastapi import FastAPI
+from fastapi import status
+from fastapi import Request
+# from fastapi import HTTPException
 
 from models import ToDo
 from models import ToDoList
@@ -18,17 +22,30 @@ from mappers import todo_update_dto_to_todo_model
 app = FastAPI()
 todos: ToDoList = ToDoList()
 
-@app.get("/todos",
-         response_model = ToDoList,
-         )
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+
+@app.get(
+    "/todos",
+    responses={status.HTTP_201_CREATED: {"model": ToDoList}},
+)
 async def read_all_todos():
     return todos
 
 
-@app.get("/todos/{todo_id}", 
-         response_model=ToDo,
-        #  responses={status.HTTP_201_CREATED: {"model": ToDo}}
-         )
+@app.get(
+    "/todos/{todo_id}", 
+    responses={
+        status.HTTP_201_CREATED: {"model": ToDo},
+        status.HTTP_404_NOT_FOUND: {}
+    }
+)
 async def read_todo(todo_id: int):
     to_read = todos.search(todo_id)
     if to_read:
@@ -36,9 +53,13 @@ async def read_todo(todo_id: int):
     return HTTPException(status_code=404, detail="Todo not found")
 
 
-@app.post("/todos", 
-          response_model=ToDo,
-          )
+@app.post(
+    "/todos",          
+    responses={
+        status.HTTP_201_CREATED: {"model": ToDo},
+        status.HTTP_404_NOT_FOUND: {}
+    }
+)
 async def create_todo(create: TodoCreateDTO):
     id_todo = randrange(1000)
     todo = todo_create_to_todo_model(create, id_todo)
@@ -47,8 +68,11 @@ async def create_todo(create: TodoCreateDTO):
  
 
 @app.put("/todos/{todo_id}",
-         response_model=ToDo,
-         )
+    responses={
+        status.HTTP_201_CREATED: {"model": ToDo},
+        status.HTTP_404_NOT_FOUND: {}
+    }
+)
 async def update_todo(todo_id: int, todo_update_dto: TodoUpdateDTO):
     to_update = todos.search(todo_id)
     if to_update:
@@ -58,8 +82,11 @@ async def update_todo(todo_id: int, todo_update_dto: TodoUpdateDTO):
 
   
 @app.patch("/todos/{todo_id}", 
-           response_model=ToDo,
-           )
+    responses={
+        status.HTTP_201_CREATED: {"model": ToDo},
+        status.HTTP_404_NOT_FOUND: {}
+    }
+)
 async def change_checked_todo(todo_id: int):
     to_update = todos.search(todo_id)
     if to_update:
@@ -69,8 +96,11 @@ async def change_checked_todo(todo_id: int):
 
 
 @app.delete("/todos/{todo_id}",
-            response_model = ToDoList,
-            )
+    responses={
+        status.HTTP_201_CREATED: {"model": ToDo},
+        status.HTTP_404_NOT_FOUND: {}
+    }
+)
 async def delete_todo(todo_id: int):
     to_delete = todos.search(todo_id)
     if to_delete:
